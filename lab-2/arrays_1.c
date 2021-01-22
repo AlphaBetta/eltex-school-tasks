@@ -20,5 +20,7 @@ int main()
         if (i % N == 0) {
             printf("\n");
         }
-    } 
+    }
+
+    return 0; 
 }
