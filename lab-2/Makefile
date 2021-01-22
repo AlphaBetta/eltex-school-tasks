@@ -7,4 +7,4 @@ arrays_1.o:
 	gcc -c -Wall arrays_1.c
 
 clean:
-	rm arrays_1 *.o
+	rm arrays_? *.o
