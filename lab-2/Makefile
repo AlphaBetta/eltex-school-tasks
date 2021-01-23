@@ -1,4 +1,10 @@
-all: arrays_1 arrays_2 arrays_3
+all: arrays_1 arrays_2 arrays_3 arrays_4
+
+arrays_4: arrays_4.o
+	gcc -o arrays_4 arrays_4.o
+
+arrays_4.o:
+	gcc -c -Wall arrays_4.c
 
 arrays_3: arrays_3.o
 	gcc -o arrays_3 arrays_3.o
