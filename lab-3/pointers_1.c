@@ -14,7 +14,7 @@
 int main()
 {
     uint32_t var = 0xAABBCCDD;      // Число, которое обрабатывается
-    uint8_t* pointer = &var;
+    uint8_t* pointer = (uint8_t*) &var;
 
     for (int i = 1; i <= sizeof(var); i++) {
 

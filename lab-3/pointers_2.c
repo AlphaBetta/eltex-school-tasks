@@ -15,7 +15,7 @@ int main()
 {
     uint32_t var = 0xAABBCCDD;      // Число, которое обрабатывается
     uint16_t input = 0;              // Переменная, куда будет помещено введённое число
-    uint8_t* pointer = &var;
+    uint8_t* pointer = (uint8_t*) &var;
     pointer = pointer + 2;
 
     printf("Введите однобайтное число в 16-й с/с.\n");
