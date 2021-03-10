@@ -23,7 +23,7 @@ int main()
 
     printf("Неизменённое число: %X\n", var);
 
-    *pointer = input;
+    *pointer = input;               // Изменяем 3-й байт
 
     printf("Изменённое число: %X\n", var);
 
