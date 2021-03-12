@@ -8,8 +8,6 @@
  * This code is licensed under a MIT-style license.
  */
 
-//TODO Спросить, почему в справочнике помещается 11 записей
-
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -62,7 +60,7 @@ int main()
         switch(option) {
             case ADD:
                 /* Если справочник не заполнен, то добавляем абонента */
-                if (num_subscribers <= PHONEBOOK_LENGTH) {
+                if (num_subscribers < PHONEBOOK_LENGTH) {
                     add_subscriber(phonebook, index);
                     num_subscribers++;
                     index++;
@@ -141,8 +139,7 @@ void delete_subscriber(subscriber phonebook[], uint16_t* index, uint16_t* num_su
             }
             /* Зануляем телефон */
             for (uint16_t k = 0; k < PHONE_NUMBER_LENGTH; k++) {
-                phonebook[i].name[k] = '0';
-                phonebook[i].surname[k] = '0';
+                phonebook[i].phone_number[k] = '0';
             }
             *index = i;
             *num_subscribers = *num_subscribers - 1;
