@@ -78,11 +78,10 @@ int main()
             case FIND:
                 find_subscriber(phonebook, num_subscribers);
                 break;
+            case EXIT:
+                exit(EXIT_SUCCESS);
         }       
     }
-
-    
-    exit(EXIT_SUCCESS);
 }
 
 /* Функция, выводящая пункты меню */
