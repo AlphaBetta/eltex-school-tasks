@@ -15,7 +15,7 @@
 
 #define NAME_LENGTH 100
 #define PHONE_NUMBER_LENGTH 13
-#define PHONEBOOK_LENGTH 10
+#define PHONEBOOK_LENGTH 3
 
 #define ADD 1
 #define SHOW 2
@@ -25,30 +25,30 @@
 
 
 /* Структура, описывающая абонента */
-typedef struct _subscriber {
+struct subscriber {
     char name[NAME_LENGTH];
     char surname[NAME_LENGTH];
     char phone_number[PHONE_NUMBER_LENGTH];
-} subscriber;
+};
 
 /* Функция, выводящая пункты меню */
 void print_menu();
 
 /* Добавить абонента */
-void add_subscriber(subscriber phonebook[], uint16_t index);
+void add_subscriber(struct subscriber phonebook[], uint16_t index);
 
 /* Вывести всех абонентов */
-void print_all_subscribers(subscriber phonebook[], uint16_t num_subscribers);
+void print_all_subscribers(struct subscriber phonebook[], uint16_t num_subscribers);
 
 /* Удалить абонента */
-void delete_subscriber(subscriber phonebook[], uint16_t* index, uint16_t* num_subscribers);
+void delete_subscriber(struct subscriber phonebook[], uint16_t* index, uint16_t* num_subscribers);
 
 /* Найти абонента и вывести его */
-void find_subscriber(subscriber phonebook[], uint16_t num_subscribers);
+void find_subscriber(struct subscriber phonebook[], uint16_t num_subscribers);
 
 int main()
 {
-    subscriber phonebook[PHONEBOOK_LENGTH];      // Массив абонентов
+    struct subscriber phonebook[PHONEBOOK_LENGTH];      // Массив абонентов
     uint16_t option = 0;                         // Опция, выбранная пользователем
     uint16_t index = 0;                          // Хранит номер текущей свободной ячейки
     uint16_t num_subscribers = 0;                // Количество абонентов в справочнике 
@@ -100,7 +100,7 @@ void print_menu()
 }
 
 /* Добавить абонента */
-void add_subscriber(subscriber phonebook[], uint16_t index)
+void add_subscriber(struct subscriber phonebook[], uint16_t index)
 {
     printf("Введите данные нового абонента.\n");
     scanf("%s", phonebook[index].name);
@@ -111,7 +111,7 @@ void add_subscriber(subscriber phonebook[], uint16_t index)
 }
 
 /* Вывести всех абонентов */
-void print_all_subscribers(subscriber phonebook[], uint16_t num_subscribers)
+void print_all_subscribers(struct subscriber phonebook[], uint16_t num_subscribers)
 {
     for (uint16_t i = 0; i < num_subscribers; i++) {
         if ((phonebook[i].name[0] != '0') && (phonebook[i].surname[0] != '0')) {
@@ -122,7 +122,7 @@ void print_all_subscribers(subscriber phonebook[], uint16_t num_subscribers)
 }
 
 /* Удалить абонента */
-void delete_subscriber(subscriber phonebook[], uint16_t* index, uint16_t* num_subscribers)
+void delete_subscriber(struct subscriber phonebook[], uint16_t* index, uint16_t* num_subscribers)
 {
     char input[NAME_LENGTH];
 
@@ -149,7 +149,7 @@ void delete_subscriber(subscriber phonebook[], uint16_t* index, uint16_t* num_su
 }
 
 /* Найти абонента и вывести его */
-void find_subscriber(subscriber phonebook[], uint16_t num_subscribers)
+void find_subscriber(struct subscriber phonebook[], uint16_t num_subscribers)
 {   
     char input[NAME_LENGTH];
 
