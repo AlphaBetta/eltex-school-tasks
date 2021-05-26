@@ -1,3 +1,4 @@
+
 all: structs_1 structs_2
 
 structs_2: structs_2.o
