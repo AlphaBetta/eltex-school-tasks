@@ -166,6 +166,23 @@ void delete_subscriber(struct phonebook *phonebook)
 /* Найти абонента и вывести его */
 void find_subscriber(struct phonebook *phonebook)
 {   
+    char name[NAME_LENGTH];
+    char surname[NAME_LENGTH];
 
+    printf("Введите имя абонента, которого вы хотите найти.\n");
+    scanf("%s", name);
+    printf("Введите фамилию абонента, которого вы хотите найти.\n");
+    scanf("%s", surname);
+
+    struct subscriber *cur_subscriber = phonebook->head;
+    for (int i = 0; i < phonebook->num_subscribers; i++) {
+        if ((strcmp(cur_subscriber->name, name) == 0) && 
+            (strcmp(cur_subscriber->surname, surname) == 0)) {
+            printf("%s %s %s\n", cur_subscriber->name, cur_subscriber->surname, cur_subscriber->phone_number);
+            break;
+        } else {
+            cur_subscriber = cur_subscriber->next;
+        }
+    }
     return;
 }
