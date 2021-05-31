@@ -57,6 +57,9 @@ void delete_subscriber(struct phonebook *phonebook);
 /* Найти абонента и вывести его */
 void find_subscriber(struct phonebook *phonebook);
 
+/* Функция, отчищающая память выделенную под справочник */
+void free_memory(struct phonebook *phonebook);
+
 int main()
 {
     /* Структура справочника */
@@ -85,12 +88,14 @@ int main()
                 find_subscriber(phonebook);
                 break;
             case EXIT:
+                free_memory(phonebook);
                 exit(EXIT_SUCCESS);
                 break;
             default:
                 printf("%s", "Неизвестная опция!\n");
         }       
     }
+
 
     exit(EXIT_SUCCESS);
 }
@@ -144,21 +149,74 @@ void print_all_subscribers(struct phonebook *phonebook)
     if (phonebook->num_subscribers > 0) {
         struct subscriber *cur_subscriber = phonebook->head; 
         for (int i = 0; i < phonebook->num_subscribers; i++) {
-            printf("%s %s %s\n", cur_subscriber->name,
-                                 cur_subscriber->surname,
-                                 cur_subscriber->phone_number);
+            printf("%s %s %s\n", cur_subscriber->name, cur_subscriber->surname, cur_subscriber->phone_number);
             cur_subscriber = cur_subscriber->next;
-        } 
+        }
     } else {
         printf("%s", "Справочник пуст!\n");
     }
-
+    
     return;
 }
 
 /* Удалить абонента */
 void delete_subscriber(struct phonebook *phonebook)
 {
+    char name[NAME_LENGTH];
+    char surname[NAME_LENGTH];
+
+    printf("Введите имя абонента, которого вы хотите удалить.\n");
+    scanf("%s", name);
+    printf("Введите фамилию абонента, которого вы хотите удалить.\n");
+    scanf("%s", surname);
+
+     /* Если справочник пуст */
+    if ((phonebook->head == NULL) && (phonebook->tail == NULL)) {
+        printf("%s", "Справочник пуст!\n");
+        return;
+    /* Если справочник не пуст */
+    } else {
+        struct subscriber *subscriber = phonebook->head;
+
+        /* Поиск абонента */
+        for (int i = 0; i < phonebook->num_subscribers; i++) {
+            if ((strcmp(subscriber->name, name) == 0) && 
+                (strcmp(subscriber->surname, surname) == 0)) {
+                break;
+            } else {
+                subscriber = subscriber->next;
+            }
+        }
+
+        /* Если абонент найден, то производим его удаление */
+        if (subscriber != NULL) {
+            /* Если в списке один элемент */
+            if (phonebook->head == phonebook->tail) {
+                phonebook->head = NULL;
+                phonebook->tail = NULL;
+                free(subscriber);
+            /* Если абонент в начале списка */
+            } else if (subscriber == phonebook->head) {
+                phonebook->head = subscriber->next;
+                phonebook->head->prev = NULL;
+                free(subscriber);
+            /* Если абонент в конце списка */
+            } else if (subscriber == phonebook->tail){
+                phonebook->tail = subscriber->prev;
+                phonebook->tail->next = NULL;
+                free(subscriber);
+            /* Если абонент в середине списка */    
+            } else {
+                subscriber->next->prev = subscriber->prev;
+                subscriber->prev->next = subscriber->next;
+                free(subscriber);
+            }
+            phonebook->num_subscribers--;
+        } else {
+            printf("%s", "В справочнике не найден абонент с такими именем и фамилией!\n");
+            return;
+        }
+    }
 
     return;
 }
@@ -179,12 +237,27 @@ void find_subscriber(struct phonebook *phonebook)
         if ((strcmp(cur_subscriber->name, name) == 0) && 
             (strcmp(cur_subscriber->surname, surname) == 0)) {
             printf("%s %s %s\n", cur_subscriber->name, cur_subscriber->surname, cur_subscriber->phone_number);
-            break;
+            return;
         } else {
             cur_subscriber = cur_subscriber->next;
         }
     }
 
     printf("%s", "В справочнике не найден абонент с такими именем и фамилией!\n");
+    return;
+}
+
+/* Функция, отчищающая память выделенную под справочник */
+void free_memory(struct phonebook *phonebook)
+{
+    struct subscriber *cur_subscriber = phonebook->head;
+    struct subscriber *next_subscriber= NULL;
+    for (int i = 0; i < phonebook->num_subscribers; i++) {
+        next_subscriber = cur_subscriber->next;
+        free(cur_subscriber);
+        cur_subscriber = next_subscriber;
+    }
+
+    free(phonebook);
     return;
 }
