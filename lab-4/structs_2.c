@@ -138,7 +138,7 @@ void delete_subscriber(struct subscriber phonebook[], uint16_t* num_subscribers,
     printf("Введите имя абонента, которого вы хотите удалить.\n");
     scanf("%s", input);
 
-    for (uint16_t i; i < PHONEBOOK_LENGTH; i++) {
+    for (uint16_t i = 0; i < PHONEBOOK_LENGTH; i++) {
         if (strcmp(phonebook[i].name, input) == 0) {
             /* Зануляем имя и фамилию */
             for (uint16_t j = 0; j < NAME_LENGTH; j++) {
@@ -166,7 +166,7 @@ void find_subscriber(struct subscriber phonebook[])
     printf("Введите имя абонента, которого вы хотите найти.\n");
     scanf("%s", input);
 
-    for (uint16_t i; i < PHONEBOOK_LENGTH; i++) {
+    for (uint16_t i = 0; i < PHONEBOOK_LENGTH; i++) {
         if (strcmp(phonebook[i].name, input) == 0) {
             printf("%s %s %s\n", phonebook[i].name, phonebook[i].surname, phonebook[i].phone_number);
         }
