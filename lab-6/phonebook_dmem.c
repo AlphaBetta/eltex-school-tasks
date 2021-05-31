@@ -140,7 +140,18 @@ void add_subscriber(struct phonebook *phonebook)
 
 /* Вывести всех абонентов */
 void print_all_subscribers(struct phonebook *phonebook)
-{
+{   
+    if (phonebook->num_subscribers > 0) {
+        struct subscriber *cur_subscriber = phonebook->head; 
+        for (int i = 0; i < phonebook->num_subscribers; i++) {
+            printf("%s %s %s\n", cur_subscriber->name,
+                                 cur_subscriber->surname,
+                                 cur_subscriber->phone_number);
+            cur_subscriber = cur_subscriber->next;
+        } 
+    } else {
+        printf("%s", "Справочник пуст!\n");
+    }
 
     return;
 }
