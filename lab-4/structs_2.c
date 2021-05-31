@@ -15,7 +15,7 @@
 
 #define NAME_LENGTH 100
 #define PHONE_NUMBER_LENGTH 13
-#define PHONEBOOK_LENGTH 3
+#define PHONEBOOK_LENGTH 10
 
 #define ADD 1
 #define SHOW 2
