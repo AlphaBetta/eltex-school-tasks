@@ -184,5 +184,7 @@ void find_subscriber(struct phonebook *phonebook)
             cur_subscriber = cur_subscriber->next;
         }
     }
+
+    printf("%s", "В справочнике не найден абонент с такими именем и фамилией!\n");
     return;
 }
