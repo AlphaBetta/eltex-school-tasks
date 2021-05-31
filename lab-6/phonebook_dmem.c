@@ -43,7 +43,7 @@ struct phonebook {
 };
 
 /* Функция, выводящая пункты меню */
-void print_menu(struct phonebook *phonebook);
+void print_menu();
 
 /* Добавить абонента */
 void add_subscriber(struct phonebook *phonebook);
@@ -59,26 +59,27 @@ void find_subscriber(struct phonebook *phonebook);
 
 int main()
 {
-    struct phonebook *phonebook = NULL;     // Структура справочника
+    /* Структура справочника */
+    struct phonebook *phonebook = (struct phonebook *) malloc(sizeof(struct phonebook));     
     phonebook->head = NULL;
     phonebook->tail = NULL;
     phonebook->num_subscribers = 0;
 
-    uint16_t option = 0;                    // Опция, выбранная пользователем
+    uint16_t option = 0;    // Опция, выбранная пользователем
 
     while (1) {
         print_menu();
         printf("Введите выбранную опцию:\n");
-        scanf("%hu", &option);                  // Считываем опцию, выбранную пользователем
+        scanf("%hu", &option);    // Считываем опцию, выбранную пользователем
         switch(option) {
             case ADD:
-
+                add_subscriber(phonebook);
                 break;
             case SHOW:
                 print_all_subscribers(phonebook);
                 break;
             case DELETE:
-                delete_subscriber(phonebook, &num_subscribers, vacant_space);
+                delete_subscriber(phonebook);
                 break;
             case FIND:
                 find_subscriber(phonebook);
@@ -110,28 +111,49 @@ void print_menu()
 }
 
 /* Добавить абонента */
-void add_subscriber()
+void add_subscriber(struct phonebook *phonebook)
 {
+    struct subscriber *new_subscriber = (struct subscriber *) malloc(sizeof(struct subscriber));
+    new_subscriber->next = NULL;
+    new_subscriber->prev = NULL;    
+
+    printf("Введите данные нового абонента.\n");
+    scanf("%s", new_subscriber->name);
+    scanf("%s", new_subscriber->surname);
+    scanf("%s", new_subscriber->phone_number);
+
+    /* Если справочник пуст */
+    if ((phonebook->head == NULL) && (phonebook->tail == NULL)) {
+        phonebook->head = new_subscriber;
+        phonebook->tail = new_subscriber;
+    /* Если справочник не пуст */
+    } else {
+        new_subscriber->prev = phonebook->tail;
+        phonebook->tail->next = new_subscriber;
+        phonebook->tail = new_subscriber;
+    }
+
+    phonebook->num_subscribers++;
 
     return;
 }
 
 /* Вывести всех абонентов */
-void print_all_subscribers()
+void print_all_subscribers(struct phonebook *phonebook)
 {
 
     return;
 }
 
 /* Удалить абонента */
-void delete_subscriber()
+void delete_subscriber(struct phonebook *phonebook)
 {
 
     return;
 }
 
 /* Найти абонента и вывести его */
-void find_subscriber()
+void find_subscriber(struct phonebook *phonebook)
 {   
 
     return;
