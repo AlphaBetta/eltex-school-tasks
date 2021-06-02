@@ -8,7 +8,7 @@
  * This code is licensed under a MIT-style license.
  */
 
-#include "../mycalc.h"
+#include "mycalc.h"
 
 void div()
 {
@@ -22,6 +22,6 @@ void div()
         fprintf(stderr, "%s", "Division by zero!\n");
         return;
     }
-    printf("Result: %i / %i = %i", a, b, a / b);
+    printf("Result: %i / %i = %i\n", a, b, a / b);
     return;
 }

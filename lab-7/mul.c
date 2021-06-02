@@ -8,7 +8,7 @@
  * This code is licensed under a MIT-style license.
  */
 
-#include "../mycalc.h"
+#include "mycalc.h"
 
 void mul()
 {
@@ -18,6 +18,6 @@ void mul()
     printf("%s", "Enter two integer numbers. (Each number on a new line)\n");
     scanf("%i", &a);
     scanf("%i", &b);
-    printf("Result: %i * %i = %i", a, b, a * b);
+    printf("Result: %i * %i = %i\n", a, b, a * b);
     return;
 }

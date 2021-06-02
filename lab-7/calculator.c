@@ -8,7 +8,6 @@
  * This code is licensed under a MIT-style license.
  */
 
-#include <stdlib.h>
 #include "mycalc.h"
 
 #define ADD 1
@@ -27,7 +26,7 @@ int main()
     while (1) {
         print_menu();
         printf("Enter the selected option:\n");
-        scanf("%hu", &option);    // Считываем опцию, выбранную пользователем
+        scanf("%hhu", &option);    // Считываем опцию, выбранную пользователем
         switch(option) {
             case ADD:
                 add();
@@ -42,13 +41,13 @@ int main()
                 div();
                 break;
             case EXIT:
-                exit(EXIT_SUCCESS);
+                return 0;
                 break;
             default:
                 fprintf(stderr, "%s", "Unknown option!\n");
         }       
     }
-    exit(EXIT_SUCCESS);
+    return 0;
 }
 
 /* Функция, выводящая пункты меню */
