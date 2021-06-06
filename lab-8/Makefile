@@ -2,8 +2,8 @@ OPTIONS := -Wall -Wextra -std=c11
 
 all: calculator
 
-calculator: calculator.o mycalc.h libmycalc.so
-	gcc -o calculator calculator.o mycalc.h -L. -Wl,-rpath=/home/epsilon/Eltex/eltex-school-tasks/lab-8 -lmycalc 
+calculator: calculator.o libmycalc.so
+	gcc -o calculator calculator.o -L. -Wl,-rpath=/home/epsilon/Eltex/eltex-school-tasks/lab-8 -lmycalc 
 	
 libmycalc.so: add.o sub.o mul.o div.o
 	gcc --shared -o libmycalc.so add.o sub.o mul.o div.o
