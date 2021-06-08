@@ -19,7 +19,7 @@
 #include <dlfcn.h>
 #include "func_info.h"
 
-/* Указатель на ф-ию (Необходимо для массива функций) */
+/* Указатель на ф-ию, выполянющую к-л арифметическую операцию (Необходимо для массива функций) */
 typedef void (*func)(void);
 
 /* Структура, хранящая информацию об обнаруженных плагинах */
@@ -32,9 +32,9 @@ struct libs_info
 /* Структура, хранящая информацию о подключённых DSO, функциях и их описаниях */
 struct pluged_in_funcs
 {
-    void **DSO_array;       // Массив из dynamic shared object (DSO)
+    void **DSO_array;       // Массив из указателей на dynamic shared object (DSO)
     func *funcs_array;      // Массив указателей на функции, которые были подключены из DSO
-    char **descriptions;     // Массив описаний действий, которые воплняет каждая функция (Для меню)
+    char **descriptions;    // Массив описаний действий, которые воплняет каждая функция (Для меню)
     uint8_t num_of_funcs;   // Количество подключённых функций
 };
 
@@ -45,46 +45,51 @@ struct libs_info *find_plugins();
 struct pluged_in_funcs *add_plugins(struct libs_info *libs);
 
 /* Функция, выводящая пункты меню */
-void print_menu(struct pluged_in_funcs *functions);
+void print_menu(struct pluged_in_funcs *funcs);
 
 /* Функция, очищающая память */
-void free_memory(struct libs_info *libs, struct pluged_in_funcs *functions);
+void free_memory(struct libs_info *libs, struct pluged_in_funcs *funcs);
 
 int main()
 {
-    uint8_t option = 0;    // Опция, выбранная пользователем
+    uint8_t option = 0;                     // Опция, выбранная пользователем
+    struct libs_info *libs = NULL;          // Стр-ра для инф-ии об обнаруженных библиотеках
+    struct pluged_in_funcs *funcs = NULL;   // Стр-ра для инф-ии о подключённых ф-ях
 
-    struct libs_info *libs = find_plugins();
-    struct pluged_in_funcs *functions = add_plugins(libs);
-    if (functions->num_of_funcs == 0) {
+    /* Ищем динамические бибилиотеки */
+    libs = find_plugins();
+    /* Подключаем функции */
+    funcs = add_plugins(libs);
+    /* Если не было подключено ни одной функции, то завершаем работу */
+    if (funcs->num_of_funcs == 0) {
         fprintf(stderr, "%s", "No plugins found!\n");
         exit(EXIT_FAILURE);
     }
 
     /* Обработка пользовательского ввода */
     while (1) {
-        print_menu(functions);
+        print_menu(funcs);
+        /* Считываем опцию, выбранную пользователем */
         printf("Enter the selected option:\n");
-        scanf("%hhu", &option);    // Считываем опцию, выбранную пользователем
-        /* Проверяем, существует ли опция с таким номером */
-        if (option > functions->num_of_funcs) {
-            fprintf(stderr, "%s", "Unknown option!\n");
-            continue;
-        /* Обрабатываем опцию в соответсвие с её номером */
-        } else {
-            /* Если опция отвечает за номер ф-ии, то вызываем её */
-            if (option != functions->num_of_funcs) {
-                func f = functions->funcs_array[option];
+        scanf("%hhu", &option);
+
+        /* Проверяем, корректна ли введённая пользователем опция */
+        if (option <= funcs->num_of_funcs) {
+            /* Если опция это номер к-н арифметической операции, то вызываем соответсвующую функцию */
+            if (option != funcs->num_of_funcs) {
+                func f = funcs->funcs_array[option];
                 f();
+            /* Иначе была пользователь ввёл опцию для выходя из программы */
             } else {
-                /* Иначе -- выходим из программы */
-                free_memory(libs, functions);
+                free_memory(libs, funcs);
                 exit(EXIT_SUCCESS);
             }
+        /* Если опция некорректна, то выводим об этом сообщение */
+        } else {
+            fprintf(stderr, "%s", "Unknown option!\n");
+            continue;
         }
     }
-    
-
 
     exit(EXIT_SUCCESS);
 }
@@ -92,14 +97,13 @@ int main()
 /* Функция, ищущая плагины в директории plugins */
 struct libs_info *find_plugins()
 {
-    DIR *dirp = NULL;           // Директория, где хранятся плагины
-    struct dirent *file;        // Структура для хранения информации о файлах в директории при её чтении
+    DIR *dirp = NULL;              // Директория, где хранятся плагины
+    struct dirent *file = NULL;    // Структура, в к-ю будет записываться инф-ия о файлах в директории
 
-    /* Структура, которая хранит информацию об обнаруженных библиотеках */
+    /* Создаём структуру, которая будет хранить инф-ию об обнаруженных библиотеках */
     struct libs_info *libs = (struct libs_info *) malloc(sizeof(struct libs_info)); 
     libs->libs_names = NULL;
     libs->num_libs = 0;
-
 
     /* Открываем директорию plugins */
     if ((dirp = opendir("plugins")) == NULL) {
@@ -128,7 +132,7 @@ struct libs_info *find_plugins()
         strcpy(libs->libs_names[libs->num_libs - 1], file->d_name);
     }
 
-    /* Если при обхода была ошибка, то сообщаем об этом и выходим */
+    /* Если при обхода была ошибка, то сообщаем об этом и выходим из программы */
     if (errno != 0) {
         perror("Failed to read dir");
         exit(EXIT_FAILURE);
@@ -139,33 +143,35 @@ struct libs_info *find_plugins()
 
 struct pluged_in_funcs *add_plugins(struct libs_info *libs)
 {
-    /* Структура ф-й, которые были подключены */
+    /* Создаём структуру для хранения информации о функциях, которые будут подключены */
     struct pluged_in_funcs *funcs = (struct pluged_in_funcs *) malloc(sizeof(struct pluged_in_funcs));
     funcs->DSO_array = (void **) malloc(sizeof(void *) * libs->num_libs);
     funcs->descriptions = (char **) malloc(sizeof(char *) * libs->num_libs);
     funcs->funcs_array = (func *) malloc(sizeof(func) * libs->num_libs);
     funcs->num_of_funcs = 0;
 
-    void *DSO = NULL;                   // Указатель на dynamic shared object (DSO)
-    func function = NULL;               // Указатель на функцию из DSO
-    struct func_info *function_info;    // Указатель на структуру, содержащую информацию о функции
+    void *DSO = NULL;            // Указатель на dynamic shared object (DSO)
+    func function = NULL;        // Указатель на функцию из DSO
+    struct func_info *f_info;    // Указатель на структуру, содержащую информацию о функции
 
     /* Переменная для хранения пути к плагину */
     char *plugin_path = (char *) malloc(sizeof(char) * PATH_MAX);
     strcpy(plugin_path, "plugins/");
-    int32_t plugin_path_inicial_length = strlen(plugin_path);
+    int32_t plugin_path_init_len = strlen(plugin_path);
 
-    /* Переменная для хранения названия структуры, где хранится информация о функции */
+    /* Переменная для хранения строки с названием структуры, где хранится информация о функции */
     char *func_info_struct_name = (char *) malloc(sizeof(char) * PATH_MAX);
     strcpy(func_info_struct_name, "func_info_");
-    int32_t func_info_struct_name_inicial_length = strlen(func_info_struct_name);
+    int32_t func_info_struct_name_init_len = strlen(func_info_struct_name);
 
     /* Обрабатываем массив имён обнаруженных бибилиотек */
     for (uint16_t i = 0; i < libs->num_libs; i++) {
-        strcat(plugin_path, libs->libs_names[i]);   // Записываем путь к библиотеке
+        /* Конструируем путь до бибилиотеки */
+        strcat(plugin_path, libs->libs_names[i]);
 
+        /* Подключаем библиотеку */
         DSO = dlopen(plugin_path, RTLD_LAZY);
-        /* Если не удалось подключить библиотеку */
+        /* Если не удалось подключить библиотеку, то выходим из программы */
         if (DSO == NULL) {
             fprintf(stderr, "%s\n", dlerror());
             exit(EXIT_FAILURE);
@@ -173,34 +179,36 @@ struct pluged_in_funcs *add_plugins(struct libs_info *libs)
 
         /* Записываем название структуры, в которой хранится информация о функции */
         strcat(func_info_struct_name, libs->libs_names[i]);
+        /* Отсекаем расширение ".so" */
         func_info_struct_name[strlen(func_info_struct_name) - 3] = '\0';
 
         /* Находим структуру с информацией о функции */
-        function_info = (struct func_info *) dlsym(DSO, func_info_struct_name);
+        f_info = (struct func_info *) dlsym(DSO, func_info_struct_name);
         /* Если не обнаружена структура, то отключаем этот DSO */
-        if (function_info == NULL) {
-            /* Возвращаем строку пути и строку названия структуры к исходному виду */
-            plugin_path[plugin_path_inicial_length] = '\0';
-            func_info_struct_name[func_info_struct_name_inicial_length] = '\0';
+        if (f_info == NULL) {
+            /* Возвращаем строку для пути и строку для названия структуры к исходному виду */
+            plugin_path[plugin_path_init_len] = '\0';
+            func_info_struct_name[func_info_struct_name_init_len] = '\0';
             dlclose(DSO);
             continue;
         }
 
         /* Находим функцию по имени */
-        function = (func) dlsym(DSO, function_info->func_name);
+        function = (func) dlsym(DSO, f_info->func_name);
         
         /* Добавляем информацию в структуру funcs */
         funcs->DSO_array[funcs->num_of_funcs] = DSO;
         funcs->funcs_array[funcs->num_of_funcs] = function;
         funcs->descriptions[funcs->num_of_funcs] = (char *) malloc(sizeof(char) * PATH_MAX);
-        strcpy(funcs->descriptions[funcs->num_of_funcs], function_info->func_description);
+        strcpy(funcs->descriptions[funcs->num_of_funcs], f_info->func_description);
         funcs->num_of_funcs = funcs->num_of_funcs + 1;
 
         /* Возвращаем строку пути и строку названия структуры к исходному виду */
-        plugin_path[plugin_path_inicial_length] = '\0';
-        func_info_struct_name[func_info_struct_name_inicial_length] = '\0';
+        plugin_path[plugin_path_init_len] = '\0';
+        func_info_struct_name[func_info_struct_name_init_len] = '\0';
     }
 
+    /* Если были найдены функции, которые были подключены */
     if (funcs->num_of_funcs > 0) {
         /* Уменьшаем размер динамических массивов до фактически использованного размера */
         funcs->DSO_array = (void **) realloc(funcs->DSO_array, sizeof(void *) * funcs->num_of_funcs);
@@ -212,14 +220,14 @@ struct pluged_in_funcs *add_plugins(struct libs_info *libs)
 }
 
 /* Функция, выводящая пункты меню */
-void print_menu(struct pluged_in_funcs *functions)
+void print_menu(struct pluged_in_funcs *funcs)
 {   
     printf("============================\n");
     printf("Simple calculator.\n");
     printf("Menu:\n");
     uint32_t i = 0;
-    while (i < functions->num_of_funcs) {
-        printf("%i -- %s\n", i, functions->descriptions[i]);
+    while (i < funcs->num_of_funcs) {
+        printf("%i -- %s\n", i, funcs->descriptions[i]);
         i++;
     }
     printf("%i -- %s\n", i, "Exit.");
@@ -228,7 +236,7 @@ void print_menu(struct pluged_in_funcs *functions)
 }
 
 /* Функция, очищающая память */
-void free_memory(struct libs_info *libs, struct pluged_in_funcs *functions)
+void free_memory(struct libs_info *libs, struct pluged_in_funcs *funcs)
 {
     /* Отчистка структуры libs */
     for (uint32_t i = 0; i < libs->num_libs; i++) {
@@ -236,14 +244,14 @@ void free_memory(struct libs_info *libs, struct pluged_in_funcs *functions)
     }
     free (libs);
 
-    /* Отчистка структуры functions */
-    for (uint32_t i = 0; i < functions->num_of_funcs; i++) {
-        free(functions->descriptions[i]);
-        dlclose(functions->DSO_array[i]);
+    /* Отчистка структуры funcs */
+    for (uint32_t i = 0; i < funcs->num_of_funcs; i++) {
+        free(funcs->descriptions[i]);
+        dlclose(funcs->DSO_array[i]);
     }
-    free(functions->DSO_array);
-    free(functions->funcs_array);
-    free(functions);
+    free(funcs->DSO_array);
+    free(funcs->funcs_array);
+    free(funcs);
 
     return;
 }
