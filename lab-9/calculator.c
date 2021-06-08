@@ -126,7 +126,7 @@ struct libs_info *find_plugins()
         /* Выделение памяти для записи имени библиотеки, которая обнаружена */
         libs->num_libs = libs->num_libs + 1;
         libs->libs_names = (char **) realloc(libs->libs_names, sizeof(char *) * libs->num_libs);
-        libs->libs_names[libs->num_libs - 1] = (char *) malloc(strlen(file->d_name) * sizeof(char));
+        libs->libs_names[libs->num_libs - 1] = (char *) malloc((strlen(file->d_name) + 1) * sizeof(char));
 
         /* Записываем имя библиотеки */
         strcpy(libs->libs_names[libs->num_libs - 1], file->d_name);
@@ -134,9 +134,12 @@ struct libs_info *find_plugins()
 
     /* Если при обхода была ошибка, то сообщаем об этом и выходим из программы */
     if (errno != 0) {
+        closedir(dirp);
         perror("Failed to read dir");
         exit(EXIT_FAILURE);
     }
+
+    closedir(dirp);
     
     return libs;
 }
@@ -216,6 +219,10 @@ struct pluged_in_funcs *add_plugins(struct libs_info *libs)
         funcs->descriptions = (char **) realloc(funcs->descriptions, sizeof(char *) * funcs->num_of_funcs);
     }
 
+    /* Отчищаем память от строки пути и строки названия структуры */
+    free(plugin_path);
+    free(func_info_struct_name);
+
     return funcs;
 }
 
@@ -242,6 +249,7 @@ void free_memory(struct libs_info *libs, struct pluged_in_funcs *funcs)
     for (uint32_t i = 0; i < libs->num_libs; i++) {
         free(libs->libs_names[i]);
     }
+    free(libs->libs_names);
     free (libs);
 
     /* Отчистка структуры funcs */
@@ -249,6 +257,7 @@ void free_memory(struct libs_info *libs, struct pluged_in_funcs *funcs)
         free(funcs->descriptions[i]);
         dlclose(funcs->DSO_array[i]);
     }
+    free(funcs->descriptions);
     free(funcs->DSO_array);
     free(funcs->funcs_array);
     free(funcs);
