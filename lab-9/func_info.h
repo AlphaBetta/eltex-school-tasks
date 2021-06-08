@@ -9,19 +9,6 @@
  * This code is licensed under a MIT-style license.
  */
 
-// enum ACTIONS
-// {
-//     add,
-//     sub,
-//     mul,
-//     sub
-// };
-
-// const char func_info_prefix[4][MAX_LENGTH] = {"addition", 
-//                                               "subtraction",
-//                                               "multiplication",
-//                                              "division"}; 
-
 #define PATH_MAX 256
 
 struct func_info
