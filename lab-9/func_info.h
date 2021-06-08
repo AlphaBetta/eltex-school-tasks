@@ -11,8 +11,9 @@
 
 #define PATH_MAX 256
 
+/* Структура, хранящая информацию о функции, к-я подключается к калькулятору */
 struct func_info
 {
-    char func_name[PATH_MAX];         // Имя ф-ии
-    char func_description[PATH_MAX];  // Описание действия, к-е выполняет ф-я
+    char func_name[PATH_MAX];         // Имя ф-ии (Совпадает с именем в коде)
+    char func_description[PATH_MAX];  // Описание действия, к-е выполняет ф-я (Необходимо для формирования меню)
 };
