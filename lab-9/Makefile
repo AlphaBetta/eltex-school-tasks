@@ -1,4 +1,4 @@
-OPTIONS := -g -Wall -Wextra -std=c11
+OPTIONS := -Wall -Wextra -std=c11
 
 all: calculator dlibs
 
